@@ -1,0 +1,20 @@
+{
+    "$schema": "https://getcomposer.org/schema.json",
+    "name": "processmaker/nayra-docker",
+    "autoload": {
+        "psr-4": {
+            "ProcessMaker\\NayraService\\": "src/NayraService/"
+        },
+        "files": ["src/helpers.php"]
+    },
+    "require": {
+        "mark-php/mark": "^2.0",
+        "processmaker/nayra": "^1.9",
+        "jchook/uuid": "^1.0"
+    },
+    "require-dev": {
+    },
+    "scripts": {
+        "test": "phpunit --coverage-text --coverage-clover cov.xml tests"
+    }
+}
