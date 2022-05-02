@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://sourceforge.net/bpmn/definitions/_1651577496128" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:yaoqiang="http://bpmn.sourceforge.net" id="_1651577496128" name="" targetNamespace="http://sourceforge.net/bpmn/definitions/_1651577496128" exporter="Camunda Modeler" exporterVersion="4.6.0" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
+  <process id="PROCESS_1" processType="None" isClosed="false" isExecutable="true">
+    <extensionElements>
+      <yaoqiang:description />
+      <yaoqiang:pageFormat height="841.8897637795276" imageableHeight="831.8897637795276" imageableWidth="588.1102362204724" imageableX="5.0" imageableY="5.0" orientation="0" width="598.1102362204724" />
+      <yaoqiang:page background="#FFFFFF" horizontalCount="1" verticalCount="1" />
+    </extensionElements>
+    <scriptTask id="random_number" name="Random number" scriptFormat="application/x-php">
+      <extensionElements>
+        <yaoqiang:style fillColor="#FFFFFF" />
+      </extensionElements>
+      <incoming>_4</incoming>
+      <outgoing>_7</outgoing>
+      <script>return [
+  'random' =&gt; rand(1, 10),
+];</script>
+    </scriptTask>
+    <startEvent id="_2" name="Start Event">
+      <extensionElements>
+        <yaoqiang:style fillColor="#FFFFFF" />
+      </extensionElements>
+      <outgoing>_4</outgoing>
+      <outputSet />
+    </startEvent>
+    <sequenceFlow id="_4" sourceRef="_2" targetRef="random_number" />
+    <scriptTask id="create_hash" name="Create hash" scriptFormat="application/x-php">
+      <incoming>_7</incoming>
+      <outgoing>_8</outgoing>
+      <script>return [
+	'hash' =&gt; md5($data['random']),
+];</script>
+    </scriptTask>
+    <sequenceFlow id="_7" sourceRef="random_number" targetRef="create_hash" />
+    <sequenceFlow id="_8" sourceRef="create_hash" targetRef="_5" />
+    <endEvent id="_5" name="End Event">
+      <incoming>_8</incoming>
+      <inputSet />
+    </endEvent>
+  </process>
+  <bpmndi:BPMNDiagram id="Yaoqiang_Diagram-PROCESS_1" name="Untitled Diagram" resolution="96">
+    <bpmndi:BPMNPlane bpmnElement="PROCESS_1">
+      <bpmndi:BPMNEdge id="Yaoqiang-_8" bpmnElement="_8">
+        <di:waypoint x="476" y="111" />
+        <di:waypoint x="543" y="111" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="446.5" y="101.6" width="6" height="18.8" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Yaoqiang-_7" bpmnElement="_7">
+        <di:waypoint x="351" y="111" />
+        <di:waypoint x="391" y="111" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="308" y="101.6" width="6" height="18.8" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Yaoqiang-_4" bpmnElement="_4">
+        <di:waypoint x="199" y="111" />
+        <di:waypoint x="266" y="111" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="169.5" y="101.6" width="6" height="18.8" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Yaoqiang-_3" bpmnElement="random_number">
+        <dc:Bounds x="266" y="84" width="85" height="55" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="222.07" y="96.6" width="52" height="32.8" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Yaoqiang-_2" bpmnElement="_2">
+        <dc:Bounds x="167" y="95" width="32" height="32" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="155" y="136" width="55" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Yaoqiang-_6" bpmnElement="create_hash">
+        <dc:Bounds x="391" y="84" width="85" height="55" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="335.54" y="103.6" width="76" height="18.8" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Yaoqiang-_5" bpmnElement="_5">
+        <dc:Bounds x="543" y="95" width="32" height="32" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="534" y="136" width="51" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
