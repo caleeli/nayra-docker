@@ -1,0 +1,64 @@
+FROM php:8.1-apache
+
+LABEL maintainer="david.callizaya@processmaker.com"
+
+# PHP
+ENV PHP_MODS_DIR=/etc/php/8.1/mods-available
+ENV PHP_CLI_DIR=/etc/php/8.1/cli
+ENV PHP_CLI_CONF_DIR=${PHP_CLI_DIR}/conf.d
+ENV PHP_CGI_DIR=/etc/php/8.1/cgi
+ENV PHP_CGI_CONF_DIR=${PHP_CGI_DIR}/conf.d
+ENV TZ=America/La_Paz
+
+# INSTALLATION
+RUN apt update && apt dist-upgrade -y && \
+    # DEPENDENCIES #############################################################
+    apt install -y wget curl apt-transport-https ca-certificates git unzip && \
+    # PHP DEB.SURY.CZ ##########################################################
+    wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg && \
+    echo "deb https://packages.sury.org/php/ buster main" > /etc/apt/sources.list.d/php.list && \
+    apt update && \
+    # COMPOSER #################################################################
+    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --2 && \
+    # PHP MOD(s) ###############################################################
+    ## # INSTALL node, npm and bpmn-to-image
+    ## curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
+    ## apt-get install -y nodejs && \
+    ## npm install -g bpmn-to-image && \
+    # INSTALL APACHE 2 SERVICE ###################################################
+
+    # CLEAN UP #################################################################
+    apt-get clean -y && \
+    apt-get autoclean -y && \
+    apt-get remove -y wget curl && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/* /var/lib/log/* /tmp/* /var/tmp/*
+
+# FILES (it overrides originals)
+ADD conf.d/custom.ini /usr/local/etc/php/conf.d/custom.ini
+
+
+# Add application files with apache2 owner
+ADD deploy.php /var/www/html/deploy.php
+ADD actions.php /var/www/html/actions.php
+ADD next_state.php /var/www/html/next_state.php
+ADD welcome.php /var/www/html/welcome.php
+ADD composer.lock /var/www/html/composer.lock
+ADD src /var/www/html/src
+ADD vendor /var/www/html/vendor
+ADD bpmn /var/www/html/bpmn
+RUN mkdir /var/www/html/logs
+RUN mkdir /var/www/html/instances
+RUN touch /var/www/html/logs/nayra.log
+# chown to apache2
+RUN chown -R www-data:www-data /var/www/html
+
+# WORKDIR
+WORKDIR /var/www/html
+
+# Expose container port 3000
+EXPOSE 80
+
+# COMMAND # Tail apache2 log
+# CMD /usr/sbin/apachectl -D FOREGROUND
+CMD /usr/sbin/apachectl start & tail -f /var/www/html/logs/nayra.log | grep PROCESS_INSTANCE_COMPLETED
