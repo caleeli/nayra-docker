@@ -5,11 +5,14 @@ namespace ProcessMaker\NayraService;
 use Jchook\Uuid;
 use ProcessMaker\Nayra\Bpmn\Collection;
 use ProcessMaker\Nayra\Contracts\Bpmn\ActivityInterface;
+use ProcessMaker\Nayra\Contracts\Bpmn\CallActivityInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\CatchEventInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\CollectionInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\EventBasedGatewayInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\GatewayInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\ParticipantInterface;
+use ProcessMaker\Nayra\Contracts\Bpmn\ScriptTaskInterface;
+use ProcessMaker\Nayra\Contracts\Bpmn\ServiceTaskInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\StartEventInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\ThrowEventInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\TokenInterface;
@@ -22,12 +25,18 @@ use ProcessMaker\Nayra\Engine\ExecutionInstanceTrait;
 use ProcessMaker\Nayra\RepositoryTrait;
 use ProcessMaker\NayraService\Models\CallActivity;
 use ProcessMaker\NayraService\Models\FormalExpression;
+use ProcessMaker\NayraService\Models\ScriptTask;
 
 class Repository implements RepositoryInterface, ExecutionInstanceInterface, ExecutionInstanceRepositoryInterface, TokenRepositoryInterface
 {
     use RepositoryTrait;
     use ExecutionInstanceTrait;
 
+    private $state = [];
+
+    /**
+     * @return Instance
+     */
     public function createExecutionInstance()
     {
         $request = new Instance();
@@ -50,16 +59,27 @@ class Repository implements RepositoryInterface, ExecutionInstanceInterface, Exe
     {
     }
 
+    public function setRawState($state)
+    {
+        $this->state = $state;
+    }
+
+
     public function persistActivityActivated(ActivityInterface $activity, TokenInterface $token)
     {
         $instance = $token->getInstance();
         $instance->getProcess()->getEngine()->transactions[] = [
             'type' => 'create',
             'entity' => 'task',
+            'id' => $token->getId(),
+            'request_id' => $token->getInstance()->getId(),
             'properties' => [
                 'id' => $token->getId(),
+                'index' => $token->getIndex(),
                 'request_id' => $instance->getId(),
                 'element_id' => $token->getOwnerElement()->getId(),
+                'element_name' => $token->getOwnerElement()->getName(),
+                'element_type' => $this->getActivityType($token->getOwnerElement()),
                 'status' => $token->getStatus(),
             ],
         ];
@@ -72,6 +92,7 @@ class Repository implements RepositoryInterface, ExecutionInstanceInterface, Exe
             'type' => 'update',
             'entity' => 'task',
             'id' => $token->getId(),
+            'request_id' => $token->getInstance()->getId(),
             'properties' => [
                 'element_id' => $token->getOwnerElement()->getId(),
                 'status' => $token->getStatus(),
@@ -86,6 +107,7 @@ class Repository implements RepositoryInterface, ExecutionInstanceInterface, Exe
             'type' => 'update',
             'entity' => 'task',
             'id' => $token->getId(),
+            'request_id' => $token->getInstance()->getId(),
             'properties' => [
                 'element_id' => $token->getOwnerElement()->getId(),
                 'status' => $token->getStatus(),
@@ -95,6 +117,7 @@ class Repository implements RepositoryInterface, ExecutionInstanceInterface, Exe
             'type' => 'update',
             'entity' => 'request',
             'id' => $instance->getId(),
+            'request_id' => $token->getInstance()->getId(),
             'properties' => [
                 'data' => $instance->getDataStore()->getData(),
             ],
@@ -108,6 +131,7 @@ class Repository implements RepositoryInterface, ExecutionInstanceInterface, Exe
             'type' => 'update',
             'entity' => 'task',
             'id' => $token->getId(),
+            'request_id' => $token->getInstance()->getId(),
             'properties' => [
                 'element_id' => $token->getOwnerElement()->getId(),
                 'status' => $token->getStatus(),
@@ -173,27 +197,31 @@ class Repository implements RepositoryInterface, ExecutionInstanceInterface, Exe
 
     public function persistInstanceCreated(ExecutionInstanceInterface $instance)
     {
+        $instance->setProperty('status', 'ACTIVE');
         $instance->getProcess()->getEngine()->transactions[] = [
             'type' => 'create',
             'entity' => 'request',
+            'id' => $instance->getId(),
             'properties' => [
                 'id' => $instance->getId(),
                 'process_id' => $instance->getProcess()->getId(),
+                'callable_id' => $instance->getProcess()->getId(),
                 'data' => $instance->getDataStore()->getData(),
-                'status' => 'ACTIVE',
+                'status' => $instance->getProperty('status'),
             ],
         ];
     }
 
     public function persistInstanceCompleted(ExecutionInstanceInterface $instance)
     {
+        $instance->setProperty('status', 'COMPLETED');
         $instance->getProcess()->getEngine()->transactions[] = [
             'type' => 'update',
             'entity' => 'request',
             'id' => $instance->getId(),
             'properties' => [
                 'data' => $instance->getDataStore()->getData(),
-                'status' => 'COMPLETED',
+                'status' => $instance->getProperty('status'),
             ],
         ];
     }
@@ -205,6 +233,11 @@ class Repository implements RepositoryInterface, ExecutionInstanceInterface, Exe
     public function createCallActivity()
     {
         return new CallActivity();
+    }
+
+    public function createScriptTask()
+    {
+        return new ScriptTask();
     }
 
     public function createFormalExpression()
@@ -219,5 +252,26 @@ class Repository implements RepositoryInterface, ExecutionInstanceInterface, Exe
     public function getTokenRepository()
     {
         return $this;
+    }
+
+    private function getActivityType($activity)
+    {
+        if ($activity instanceof  ScriptTaskInterface) {
+            return 'scriptTask';
+        }
+
+        if ($activity instanceof  ServiceTaskInterface) {
+            return 'serviceTask';
+        }
+
+        if ($activity instanceof  CallActivityInterface) {
+            return 'callActivity';
+        }
+
+        if ($activity instanceof  ActivityInterface) {
+            return 'task';
+        }
+
+        return 'task';
     }
 }
