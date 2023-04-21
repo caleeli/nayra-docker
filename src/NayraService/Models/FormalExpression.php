@@ -2,6 +2,7 @@
 
 namespace ProcessMaker\NayraService\Models;
 
+use DOMElement;
 use ProcessMaker\Nayra\Bpmn\FormalExpressionTrait;
 use ProcessMaker\Nayra\Contracts\Bpmn\FormalExpressionInterface;
 
@@ -27,6 +28,8 @@ class FormalExpression implements FormalExpressionInterface
     public function __invoke($data)
     {
         extract($data);
+        $_target = $this->getBpmnElement()->parentNode->getBpmnElementInstance();
+        $_targetName = $_target->getName();
         return eval('return ' . $this->getBody() . ';');
     }
 }

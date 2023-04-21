@@ -43,7 +43,11 @@ class ScriptTask extends ModelsScriptTask
             } else {
                 $data = $token->getInstance()->getDataStore()->getData();
             }
-            $newData = eval('?>' . $script);
+            if (substr($script, 0, 5)==='<?php') {
+                $newData = eval('?>' . $script);
+            } else {
+                $newData = eval($script);
+            }
             if (gettype($newData) === 'array') {
                 $data = array_merge($data, $newData);
                 if ($isMulti) {

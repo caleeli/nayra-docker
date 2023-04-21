@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://sourceforge.net/bpmn/definitions/_1651577496128" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:yaoqiang="http://bpmn.sourceforge.net" id="_1651577496128" name="" targetNamespace="http://sourceforge.net/bpmn/definitions/_1651577496128" exporter="Camunda Modeler" exporterVersion="4.6.0" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:ai="http://www.processmaker.net/2023/pm4ai"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://sourceforge.net/bpmn/definitions/_1651577496128" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:yaoqiang="http://bpmn.sourceforge.net" id="_1651577496128" name="" targetNamespace="http://sourceforge.net/bpmn/definitions/_1651577496128" exporter="Camunda Modeler" exporterVersion="4.6.0" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://bpmn.sourceforge.net/schemas/BPMN20.xsd">
   <process id="PROCESS_1" processType="None" isClosed="false" isExecutable="true">
     <extensionElements>
       <yaoqiang:description />
@@ -25,6 +26,9 @@
     </startEvent>
     <sequenceFlow id="_4" sourceRef="_2" targetRef="random_number" />
     <exclusiveGateway id="_6" gatewayDirection="Diverging" default="_12">
+      <extensionElements>
+        <ai:embeding />
+      </extensionElements>
       <incoming>_7</incoming>
       <outgoing>_9</outgoing>
       <outgoing>_12</outgoing>

@@ -24,7 +24,7 @@
       <outputSet />
     </startEvent>
     <sequenceFlow id="_4" sourceRef="_2" targetRef="random_number" />
-    <scriptTask id="create_hash" name="Create hash" scriptFormat="application/x-php">
+    <scriptTask id="create_hash" name="Create hash" scriptFormat="application/x-php" extra="extra params">
       <incoming>_7</incoming>
       <outgoing>_8</outgoing>
       <script>return [
