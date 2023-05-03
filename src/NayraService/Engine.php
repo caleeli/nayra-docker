@@ -6,6 +6,7 @@ use Exception;
 use ProcessMaker\Nayra\Bpmn\Models\DataStore;
 use ProcessMaker\Nayra\Bpmn\Models\ScriptTask;
 use ProcessMaker\Nayra\Contracts\Bpmn\ScriptTaskInterface;
+use ProcessMaker\Nayra\Contracts\Bpmn\ServiceTaskInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\TokenInterface;
 use ProcessMaker\Nayra\Contracts\Engine\EngineInterface;
 use ProcessMaker\Nayra\Contracts\EventBusInterface;
@@ -44,6 +45,11 @@ class Engine implements EngineInterface
             $task->runScript($token);
             $this->runToNextState();
         });
+        $this->dispatcher->listen(ServiceTaskInterface::EVENT_SERVICE_TASK_ACTIVATED, function (ServiceTaskInterface $task, TokenInterface $token) {
+            // @todo run asynchronously
+            $task->run($token);
+            $this->runToNextState();
+        });
     }
 
     private function getState() : array
@@ -53,24 +59,24 @@ class Engine implements EngineInterface
             //\error_log('entroooo');
             // \error_log('====> ' . $instance->getProperty('status'));
             // if ($instance->getProperty('status') === 'ACTIVE') {
-                $tokens = [];
-                foreach ($instance->getTokens() as $token) {
-                    if ($token->getStatus() === 'CLOSED') {
-                        continue;
-                    }
-                    $tokens[] = array_merge($token->getProperties(), [
-                        'id' => $token->getId(),
-                        'status' => $token->getStatus(),
-                        'index' => $token->getIndex(),
-                        'element_id' => $token->getOwnerElement()->getId(),
-                    ]);
+            $tokens = [];
+            foreach ($instance->getTokens() as $token) {
+                if ($token->getStatus() === 'CLOSED') {
+                    continue;
                 }
-                $requests[] = [
-                    'id' => $instance->getId(),
-                    'callable_id' => $instance->getProcess()->getId(),
-                    'data' => $instance->getDataStore()->getData(),
-                    'tokens' => $tokens,
-                ];
+                $tokens[] = array_merge($token->getProperties(), [
+                    'id' => $token->getId(),
+                    'status' => $token->getStatus(),
+                    'index' => $token->getIndex(),
+                    'element_id' => $token->getOwnerElement()->getId(),
+                ]);
+            }
+            $requests[] = [
+                'id' => $instance->getId(),
+                'callable_id' => $instance->getProcess()->getId(),
+                'data' => $instance->getDataStore()->getData(),
+                'tokens' => $tokens,
+            ];
             //}
         }
         \error_log('RUN SCRIPT');

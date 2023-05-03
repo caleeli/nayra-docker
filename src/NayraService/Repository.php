@@ -26,6 +26,7 @@ use ProcessMaker\Nayra\RepositoryTrait;
 use ProcessMaker\NayraService\Models\CallActivity;
 use ProcessMaker\NayraService\Models\FormalExpression;
 use ProcessMaker\NayraService\Models\ScriptTask;
+use ProcessMaker\NayraService\Models\ServiceTask;
 
 class Repository implements RepositoryInterface, ExecutionInstanceInterface, ExecutionInstanceRepositoryInterface, TokenRepositoryInterface
 {
@@ -238,6 +239,11 @@ class Repository implements RepositoryInterface, ExecutionInstanceInterface, Exe
     public function createScriptTask()
     {
         return new ScriptTask();
+    }
+
+    public function createServiceTask()
+    {
+        return new ServiceTask();
     }
 
     public function createFormalExpression()
