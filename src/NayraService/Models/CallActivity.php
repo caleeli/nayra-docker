@@ -16,7 +16,7 @@ class CallActivity implements CallActivityInterface
 
     public function getCalledElement()
     {
-        $this->getProperty(self::BPMN_PROPERTY_CALLED_ELEMENT);
+        return $this->getProperty(self::BPMN_PROPERTY_CALLED_ELEMENT);
     }
 
     public function setCalledElement($callableElement)
