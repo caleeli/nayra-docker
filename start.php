@@ -1,5 +1,6 @@
 <?php
 
+use Dotenv\Dotenv;
 use Mark\App;
 use ProcessMaker\NayraService\BpmnAction;
 use ProcessMaker\NayraService\Monitor;
@@ -8,6 +9,10 @@ use Workerman\Protocols\Http\Response;
 use Workerman\Worker;
 
 require 'vendor/autoload.php';
+
+// load .env file if exists
+$dotenv = Dotenv::createImmutable(__DIR__);
+$dotenv->safeLoad();
 
 // Get processmaker/nayra version
 $composer = json_decode(file_get_contents(__DIR__ . '/composer.lock'), true);
@@ -65,8 +70,13 @@ $api->get('/monitor', function (Request $request) {
 });
 
 $api->post('/actions', function (Request $request) {
-    $action = new BpmnAction($request->post());
-    $action->execute();
+    try {
+        $action = new BpmnAction($request->post());
+        $action->execute();
+    } catch (Throwable $th) {
+        $at = $th->getFile() . ':' . $th->getLine();
+        error_log($th->getMessage() . ' at ' . $at);
+    }
     return new Response(200, base_headers, json_encode($action->request->engine->transactions));
 });
 
