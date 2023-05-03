@@ -10,9 +10,9 @@
     "require": {
         "mark-php/mark": "^2.0",
         "processmaker/nayra": "^1.9",
-        "jchook/uuid": "^1.0"
-    },
-    "require-dev": {
+        "jchook/uuid": "^1.0",
+        "mustache/mustache": "^2.14",
+        "vlucas/phpdotenv": "^5.5"
     },
     "scripts": {
         "test": "phpunit --coverage-text --coverage-clover cov.xml tests"
