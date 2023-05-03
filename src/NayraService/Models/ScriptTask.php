@@ -38,12 +38,12 @@ class ScriptTask extends ModelsScriptTask
             $element = $token->getOwnerElement();
             $loop = $element->getLoopCharacteristics();
             $isMulti = $loop instanceof MultiInstanceLoopCharacteristicsInterface && $loop->isExecutable();
+            $data = $token->getInstance()->getDataStore()->getData();
             if ($isMulti) {
-                $data = $token->getProperty('data', []);
-            } else {
-                $data = $token->getInstance()->getDataStore()->getData();
+                $data = array_merge($data, $token->getProperty('data', []));
             }
-            if (substr($script, 0, 5)==='<?php') {
+            // trim to avoid errors with modeler whitespace
+            if (substr(trim($script), 0, 5)==='<?php') {
                 $newData = eval('?>' . $script);
             } else {
                 $newData = eval($script);
